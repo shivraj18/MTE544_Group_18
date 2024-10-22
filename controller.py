@@ -9,6 +9,9 @@ from utilities import euler_from_quaternion, calculate_angular_error, calculate_
 M_PI=3.1415926535
 
 P=0; PD=1; PI=2; PID=3
+# CHRISTIAN ADDED THESE BASED ON TURTLEBOT SITE
+limit_linear    = 0.31   # 0.31 m/s
+limit_angular   = 1.90   # 1.90 rad/s
 
 class controller:
     
@@ -31,9 +34,8 @@ class controller:
         angular_vel=self.PID_angular.update([e_ang, pose[3]], status)
         
         # TODO Part 4: Add saturation limits for the robot linear and angular velocity
-
-        limit_linear    = ...   # To be determined
-        limit_angular   = ...   # To be determined
+        # ADDED THESE AT TOP OF THIS FILE FOR GLOBAL USE
+        
 
         if linear_vel > limit_linear:
             linear_vel = limit_linear
@@ -68,9 +70,10 @@ class trajectoryController(controller):
         angular_vel=self.PID_angular.update([e_ang, pose[3]], status) 
 
         # TODO Part 5: Add saturation limits for the robot linear and angular velocity
-
-        linear_vel = ... if linear_vel > ... else linear_vel
-        angular_vel= ... if angular_vel > ... else angular_vel
+        # CHRISTIAN EDITED THE BELOW 2 LINES
+        # DO WE NEED TO ADD NEGATIVE CASES FOR THIS? (linear_vel < -linear_vel for example, as in part 4 above)
+        linear_vel = limit_linear if linear_vel > limit_linear else linear_vel
+        angular_vel= angular_vel if angular_vel > limit_angular else angular_vel
         
         return linear_vel, angular_vel
 

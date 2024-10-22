@@ -67,7 +67,9 @@ class PID_ctrl:
             # for example dt=0.1 overwriting the calculation          
             
             # TODO Part 5: calculate the error dot 
-            # error_dot+= ... 
+            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
+            error_dot+= (latest_error - stamp) / dt # using stamp may be wrong but this should be right! 
+            # PART 5 CHRISTIAN ADDED CODE END -----------------------------------------------------------------------------------
             
         error_dot/=len(self.history)
         dt_avg/=len(self.history)
@@ -76,7 +78,9 @@ class PID_ctrl:
         sum_=0
         for hist in self.history:
             # TODO Part 5: Gather the integration
-            # sum_+=...
+            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
+            sum_+=latest_error # Are we accessing the error correctly here?
+            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
             pass
         
         error_int=sum_*dt_avg
@@ -91,17 +95,17 @@ class PID_ctrl:
         # TODO Part 4: Implement the control law of P-controller
         if self.type == P:
             # error = [[calculate_linear_error()],[calculate_angular_error()]]
-            return kp * stamped_error[0] 
+            return self.kp * stamped_error[0] 
         
         # TODO Part 5: Implement the control law corresponding to each type of controller
+        # PART 5 CHRISTIAN ADDED CODE IN THIS SECTION ----------------------------------------------------------------------------------
+        # All I did here was remove the lines that said "pass" and change kp to self.kp, and change "kd" to "kv" for derivative gain
+        # Do we need to implement anything else? 
         elif self.type == PD:
-            pass
-            # return (kp * stamped_error[0]) + (kd * error_dot) 
+            return (self.kp * stamped_error[0]) + (self.kv * error_dot) 
         
         elif self.type == PI:
-            pass
-            # return (kp * stamped_error[0]) + (ki * error_int) 
+            return (self.kp * stamped_error[0]) + (self.ki * error_int) 
         
         elif self.type == PID:
-            pass
-            # return (kp * stamped_error[0]) + (ki * error_int) + (kd * error_dot)  
+            return (self.kp * stamped_error[0]) + (self.ki * error_int) + (self.kv * error_dot)  
