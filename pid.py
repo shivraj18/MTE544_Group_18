@@ -68,7 +68,7 @@ class PID_ctrl:
             
             # TODO Part 5: calculate the error dot 
             # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
-            error_dot+= (latest_error - stamp) / dt # using stamp may be wrong but this should be right! 
+            error_dot += (self.history[i][0] - self.history[i-1][0])
             # PART 5 CHRISTIAN ADDED CODE END -----------------------------------------------------------------------------------
             
         error_dot/=len(self.history)
@@ -79,7 +79,7 @@ class PID_ctrl:
         for hist in self.history:
             # TODO Part 5: Gather the integration
             # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
-            sum_+=latest_error # Are we accessing the error correctly here?
+            sum_+=hist[0] # Are we accessing the error correctly here?
             # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
             pass
         
@@ -88,7 +88,7 @@ class PID_ctrl:
         # TODO Part 4: Log your errors
         # ADDED CODE -----------------------------------------------------------------------------------
 
-        self.logger.log_values( stamped_error[0], error_dot, error_int, stamped_error[1])
+        self.logger.log_values([stamped_error[0], error_dot, error_int, Time.from_msg(self.history[i][1]).nanoseconds])
         
         # ADDED CODE END -------------------------------------------------------------------------------
 

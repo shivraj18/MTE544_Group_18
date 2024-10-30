@@ -9,7 +9,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from nav_msgs.msg import Odometry as odom
 
-from rclpy import init, spin
+from rclpy import init, spin, shutdown
 
 rawSensor = 0
 class localization(Node):
@@ -22,7 +22,7 @@ class localization(Node):
         # Remember to define your QoS profile based on the information available in "ros2 topic info /odom --verbose" as explained in Tutorial 3
         # ADDED CODE -----------------------------------------------------------------------------
 
-        odom_qos = QoSProfile(reliability = 2, durability = 2, history = 1, depth = 10)    # VALUE TO BE EDITED TO BE COMPATIBLE
+        odom_qos = QoSProfile(depth = 10,reliability = 2)    # VALUE TO BE EDITED TO BE COMPATIBLE
         
         # ADDED CODE END -------------------------------------------------------------------------
 
@@ -33,23 +33,23 @@ class localization(Node):
         # TODO Part 3: subscribe to the position sensor topic (Odometry)
         # ADDED CODE -------------------------------------------------------------------------
 
-            self.subscription = self.create_subscription(Odometry , "/odom", self.odom_callback, odom_qos) # NOT COMPLETED YET
+            self.subscription = self.create_subscription(odom , "/odom", self.odom_callback, odom_qos) 
 
         # ADDED CODE END ---------------------------------------------------------------------
         else:
             print("This type doesn't exist", sys.stderr)
     
     
-    def odom_callback(self, pose_msg):
+    def odom_callback(self, pose_msg:odom):
         
         # TODO Part 3: Read x,y, theta, and record the stamp
         # ADDED CODE ----------------------------------------------------------------------------
 
-        self.pose=[ msg.pose.pose.position.x ,
-                    msg.pose.pose.position.y ,
-                    euler_from_quaternion(msg.pose.pose.orientation) ,
-                    Time.from_msg(msg.header.stamp).nanoseconds]
-
+        self.pose=[ pose_msg.pose.pose.position.x ,
+                    pose_msg.pose.pose.position.y ,
+                    euler_from_quaternion(pose_msg.pose.pose.orientation) ,
+                    pose_msg.header.stamp]
+ 
         # ADDED CODE END ---------------------------------------------------------------------------
         
         # Log the data
@@ -64,9 +64,16 @@ class localization(Node):
 # ADDED CODE ------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    rclpy.init(args=args)
-    ...
+    init()
     
+    localization_test = localization(rawSensor)
 
+    try:
+        spin(localization_test)
+    except KeyboardInterrupt:
+        print("Exit program")
+        localization_test.destroy_node()
+        shutdown()
+ 
 # ADDED CODE END -------------------------------------------------------------------------------------------
     

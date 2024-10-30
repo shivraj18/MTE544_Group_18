@@ -1,4 +1,5 @@
 # CONTROLLER
+from rclpy.time import Time
 
 import numpy as np
 
@@ -20,8 +21,8 @@ class controller:
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2):
         
         # TODO Part 5 and 6: Modify the below lines to test your PD, PI, and PID controller
-        self.PID_linear=PID_ctrl(P, klp, klv, kli, filename_="linear.csv")
-        self.PID_angular=PID_ctrl(P, kap, kav, kai, filename_="angular.csv")
+        self.PID_linear=PID_ctrl(PID, klp, klv, kli, filename_="linear.csv")
+        self.PID_angular=PID_ctrl(PID, kap, kav, kai, filename_="angular.csv")
 
     
     def vel_request(self, pose, goal, status):
@@ -72,8 +73,15 @@ class trajectoryController(controller):
         # TODO Part 5: Add saturation limits for the robot linear and angular velocity
         # CHRISTIAN EDITED THE BELOW 2 LINES
         # DO WE NEED TO ADD NEGATIVE CASES FOR THIS? (linear_vel < -linear_vel for example, as in part 4 above)
-        linear_vel = limit_linear if linear_vel > limit_linear else linear_vel
-        angular_vel= angular_vel if angular_vel > limit_angular else angular_vel
+        if linear_vel > limit_linear:
+            linear_vel = limit_linear
+        elif linear_vel < -limit_linear:
+            linear_vel = -limit_linear
+
+        if angular_vel > limit_angular:
+            angular_vel = limit_angular
+        elif angular_vel < -limit_angular:
+            angular_vel = -limit_angular
         
         return linear_vel, angular_vel
 

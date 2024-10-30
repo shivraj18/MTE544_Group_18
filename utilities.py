@@ -138,7 +138,7 @@ def calculate_angular_error(current_pose, goal_pose):
     # ADDED CODE------------------------------------------------------------------------------
     timestamp       = current_pose[-1]
     current_orient  = current_pose[2]
-    goal_orient     = atan2(goal_pose[1],goal_pose[0])
+    goal_orient     = atan2(goal_pose[1] - current_pose[1],goal_pose[0] - current_pose[0])
 
     error_angular = goal_orient - current_orient
     # error_angular = [(goal_orient - current_orient) , timestamp]
