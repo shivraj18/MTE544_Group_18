@@ -1,8 +1,9 @@
-# PLANNER
-import numpy as np
-# Type of planner
-POINT_PLANNER=0
-TRAJECTORY_PLANNER=1
+from math import sin,cos, atan2,atan
+import math
+
+POINT_PLANNER=0; TRAJECTORY_PLANNER=1; SPIRAL_4TUNE=2
+
+PARABOLA=0; SIGMOID=1
 
 class planner:
     def __init__(self, type_):
@@ -10,40 +11,33 @@ class planner:
         self.type=type_
 
     
-    def plan(self, goalPoint=[-1.0, -1.0]):
+    def plan(self):
         
         if self.type==POINT_PLANNER:
-            return self.point_planner(goalPoint)
+            return self.point_planner()
         
         elif self.type==TRAJECTORY_PLANNER:
             return self.trajectory_planner()
 
-    def point_planner(self, goalPoint):
-        x = goalPoint[0]
-        y = goalPoint[1]
-        return x, y
 
-    # TODO Part 6: Implement the trajectories here
+    def point_planner(self):
+        x=-1.0; y=-1.0; theta=0.0
+        return x, y, theta
+
+
     def trajectory_planner(self):
-        #parabola = self.parabola()
-        #sigmoid = self.sigmoid()
-
-        def parabola():
-            x_values = np.linspace(0, 1.5, 100)
-            trajectory = []
-            for x in x_values:
-                trajectory.append([x, x**2])
-            return trajectory
-    
-        def sigmoid():
-            x_values = np.linspace(0, 2.5, 100)
-            trajectory = []
-            for x in x_values:
-                trajectory.append([x, 1/(1+np.exp(-x))-1])
-            return trajectory
-        
-        return sigmoid() #uncomment if doing sigmoid trajectory 
-        # return parabola() #uncomment if doing sigmoid trajectory
-        
-        # the return should be a list of trajectory points: [ [x1,y1], ..., [xn,yn]]
-        # return 
+        TRAJECTORY_TYPE=SIGMOID
+        degree_rad_conversion=3.14/180.0
+        if TRAJECTORY_TYPE == PARABOLA:
+            
+            path = [[ (x/10.0) ,(x/10.0)**2] for x in range(0,20)]
+            # rotate the path by theta degrees
+            theta = 60.0 * degree_rad_conversion
+            return [[x*cos(theta) - y*sin(theta),
+                    x*sin(theta)  + y*cos(theta)] for x,y in path]
+        else:
+            path = [[ -(x/10.0) , -1/( 1 + math.exp(-(x/10)))] for x in range(0,30)]
+            # rotate the path by theta degrees
+            theta = 60.0 * degree_rad_conversion
+            return [[x*cos(theta) - y*sin(theta),
+                    x*sin(theta)  + y*cos(theta)] for x,y in path]

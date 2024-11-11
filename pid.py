@@ -1,14 +1,13 @@
-# PID
-
 from rclpy.time import Time
 from utilities import Logger
 
 # Controller type
-P   = 0 # poportional
-PD  = 1 # proportional and derivative
-PI  = 2 # proportional and integral
-PID = 3 # proportional, integral, derivative
+P=0 # poportional
+PD=1 # proportional and derivative
+PI=2 # proportional and integral
+PID=3 # proportional, integral, derivative
 
+# For the TODO items in this file, you can utilize your implementation from LAB-2 (if it was properly implemented)
 class PID_ctrl:
     
     def __init__(self, type_, kp=1.2,kv=0.8,ki=0.2, history_length=3, filename_="errors.csv"):
@@ -19,19 +18,18 @@ class PID_ctrl:
         self.type=type_
 
         # Controller gains
-        self.kp=kp    # proportional gain
-        self.kv=kv    # derivative gain
-        self.ki=ki    # integral gain
+        self.kp=kp
+        self.kv=kv
+        self.ki=ki
         
         self.logger=Logger(filename_)
-        # Remeber that you are writing to the file named filename_ or errors.csv the following:
-            # error, error_dot, error_int and time stamp
+
     
     def update(self, stamped_error, status):
         
         if status == False:
             self.__update(stamped_error)
-            return 0.0
+            return 0,0
         else:
             return self.__update(stamped_error)
 
@@ -61,15 +59,13 @@ class PID_ctrl:
             
             dt=(t1.nanoseconds - t0.nanoseconds) / 1e9
             
-            dt_avg+=dt
-
-            # use constant dt if the messages arrived inconsistent
-            # for example dt=0.1 overwriting the calculation          
+            dt_avg+=dt            
             
-            # TODO Part 5: calculate the error dot 
-            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
-            error_dot += (self.history[i][0] - self.history[i-1][0])
-            # PART 5 CHRISTIAN ADDED CODE END -----------------------------------------------------------------------------------
+            # calculate the error dot 
+            # the dt sometimes happen to be zero or very small due to the 
+            # connection issues to prevent the zero division error
+            dt =0.1
+            error_dot+=(self.history[i][0] - self.history[i-1][0])/dt
             
         error_dot/=len(self.history)
         dt_avg/=len(self.history)
@@ -77,35 +73,24 @@ class PID_ctrl:
         # Compute the error integral
         sum_=0
         for hist in self.history:
-            # TODO Part 5: Gather the integration
-            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
-            sum_+=hist[0] # Are we accessing the error correctly here?
-            # PART 5 CHRISTIAN ADDED CODE -----------------------------------------------------------------------------------
-            pass
+            # Gather the integration
+            sum_+=hist[0] 
         
         error_int=sum_*dt_avg
         
-        # TODO Part 4: Log your errors
-        # ADDED CODE -----------------------------------------------------------------------------------
+        # Log your errors
+        self.logger.log_values( [latest_error, error_dot, error_int, Time.from_msg(stamp).nanoseconds])
 
-        self.logger.log_values([stamped_error[0], error_dot, error_int, Time.from_msg(self.history[i][1]).nanoseconds])
-        
-        # ADDED CODE END -------------------------------------------------------------------------------
-
-        # TODO Part 4: Implement the control law of P-controller
+        # Control law corresponding to each type of controller
         if self.type == P:
-            # error = [[calculate_linear_error()],[calculate_angular_error()]]
-            return self.kp * stamped_error[0] 
+            return self.kp * latest_error
         
-        # TODO Part 5: Implement the control law corresponding to each type of controller
-        # PART 5 CHRISTIAN ADDED CODE IN THIS SECTION ----------------------------------------------------------------------------------
-        # All I did here was remove the lines that said "pass" and change kp to self.kp, and change "kd" to "kv" for derivative gain
-        # Do we need to implement anything else? 
         elif self.type == PD:
-            return (self.kp * stamped_error[0]) + (self.kv * error_dot) 
+            return self.kp * latest_error + self.kv * error_dot
         
         elif self.type == PI:
-            return (self.kp * stamped_error[0]) + (self.ki * error_int) 
+            return self.kp * latest_error +  self.ki * error_int
         
         elif self.type == PID:
-            return (self.kp * stamped_error[0]) + (self.ki * error_int) + (self.kv * error_dot)  
+            
+            return self.kp * latest_error + self.kv * error_dot + self.ki * error_int
