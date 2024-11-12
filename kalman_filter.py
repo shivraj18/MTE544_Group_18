@@ -97,4 +97,4 @@ class kalman_filter:
     def get_states(self):
         print(self.x)
         print(np.array([self.x]))
-        return np.array([self.x]) # IS THIS RIGHT???
+        return self.x # IS THIS RIGHT???

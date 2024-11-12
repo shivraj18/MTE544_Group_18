@@ -29,7 +29,7 @@ class localization(Node):
 
         super().__init__("localizer")
 
-        elf.loc_logger=Logger( loggerName , loggerHeaders)
+        self.loc_logger=Logger( loggerName , loggerHeaders)
         self.pose=None
         
         if type==rawSensors:
@@ -81,11 +81,12 @@ class localization(Node):
         xhat=self.kf.get_states()
 
         # Update the pose estimate to be returned by getPose
-        self.pose=np.array(xhat[0], xhat[1], xhat[2], imu_msg.header.stamp)
+        self.pose=np.array([xhat[0], xhat[1], xhat[2], imu_msg.header.stamp])
 
         # TODO Part 4: log your data
         # ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"]
-        self.loc_logger.log_values(imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], imu_msg.header.stamp.nanosec) #change nanosec? add cos(th) to xhat[5]?
+        self.loc_logger.log_values([imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], 
+                                    imu_msg.header.stamp.sec + imu_msg.header.stamp.nanosec*1e-9]) #change nanosec? add cos(th) to xhat[5]?
       
     def odom_callback(self, pose_msg):
         
