@@ -51,7 +51,7 @@ class localization(Node):
         
         Q= 0.5*np.identity(6, float)
 
-        R= 0.5*np.identity(6, float)
+        R= 0.5*np.identity(4, float)
         
         P= np.identity(6, float) # initial covariance # SHOULD THIS BE JUST IDENTITY MATRIX???
         
@@ -74,7 +74,8 @@ class localization(Node):
         z= np.array([odom_msg.twist.twist.linear.x, odom_msg.twist.twist.angular.z, imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y])
         
         # Implement the two steps for estimation
-        ...
+        self.kf.predict() #Maybe?
+        self.kf.update(z)
         
         # Get the estimate
         xhat=self.kf.get_states()
@@ -83,7 +84,8 @@ class localization(Node):
         self.pose=np.array(xhat[0], xhat[1], xhat[2], imu_msg.header.stamp)
 
         # TODO Part 4: log your data
-        self.loc_logger.log_values(imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y)
+        # ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"]
+        self.loc_logger.log_values(imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], imu_msg.header.stamp.nanosec) #change nanosec? add cos(th) to xhat[5]?
       
     def odom_callback(self, pose_msg):
         

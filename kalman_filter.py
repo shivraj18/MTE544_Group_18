@@ -45,7 +45,7 @@ class kalman_filter:
         return np.array([
             v,# v
             w,# w
-            vdot*np.cos(th), # ax
+            vdot, # ax #SHOULD THIS BE MULTIPLIED BY COS(THETA)?
             v * w, # ay
         ])
         
@@ -95,4 +95,6 @@ class kalman_filter:
         
     # TODO Part 3: return the states here    
     def get_states(self):
+        print(self.x)
+        print(np.array([self.x]))
         return np.array([self.x]) # IS THIS RIGHT???
