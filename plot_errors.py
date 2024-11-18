@@ -17,9 +17,13 @@ def plot_errors(filename):
 
     fig, axes = plt.subplots(2, 1, figsize=(14, 6))
 
+    plt.subplots_adjust(hspace=0.4)  # Increase vertical space between subplots
+
     axes[0].plot([lin[kf_x_index] for lin in values], [lin[kf_y_index] for lin in values], label="KF (x, y)")
     axes[0].plot([lin[odom_x_index] for lin in values], [lin[odom_y_index] for lin in values], label="Odom (x, y)", linestyle="--")
     axes[0].set_title("State Space Plot (KF vs Odom)")
+    axes[0].set_xlabel("x [m]")
+    axes[0].set_ylabel("y [m]")
     axes[0].legend()
     axes[0].grid()
 
@@ -27,6 +31,8 @@ def plot_errors(filename):
     for i in range(0, len(headers) - 1):
         axes[1].plot(time_list, [lin[i] for lin in values], label=headers[i])
 
+    axes[1].set_xlabel("time [seconds]")
+    axes[1].set_ylabel("various units")
     axes[1].legend()
     axes[1].grid()
 
