@@ -25,7 +25,7 @@ odom_qos=QoSProfile(reliability=2, durability=2, history=1, depth=10)
 
 class localization(Node):
     
-    def __init__(self, type, dt, loggerName="robotPose.csv", loggerHeaders=["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"]):
+    def __init__(self, type, dt, loggerName="robotPose.csv", loggerHeaders=["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y", "odom_x", "odom_y", "stamp"]):
 
         super().__init__("localizer")
 
@@ -49,9 +49,9 @@ class localization(Node):
         
         x= np.array([0, 0, 0, 0, 0, 0])
         
-        Q= 0.5*np.identity(6, float)
+        Q= 1.0*np.identity(6, float)
 
-        R= 0.5*np.identity(4, float)
+        R= 0.25*np.identity(4, float)
         
         P= np.identity(6, float) # initial covariance # SHOULD THIS BE JUST IDENTITY MATRIX???
         
@@ -86,6 +86,7 @@ class localization(Node):
         # TODO Part 4: log your data
         # ["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"]
         self.loc_logger.log_values([imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, xhat[5], xhat[3]*xhat[4], xhat[4], xhat[3], xhat[0], xhat[1], 
+                                    odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, 
                                     imu_msg.header.stamp.sec + imu_msg.header.stamp.nanosec*1e-9]) #change nanosec? add cos(th) to xhat[5]?
       
     def odom_callback(self, pose_msg):
@@ -94,7 +95,7 @@ class localization(Node):
                     pose_msg.pose.pose.position.y,
                     euler_from_quaternion(pose_msg.pose.pose.orientation),
                     pose_msg.header.stamp]
-
+  
     # Return the estimated pose
     def getPose(self):
         return self.pose
