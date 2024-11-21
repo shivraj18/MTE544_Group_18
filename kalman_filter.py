@@ -9,44 +9,44 @@ class kalman_filter:
     
     # TODO Part 3: Initialize the covariances and the states    
     def __init__(self, P,Q,R, x, dt):
-        
-        self.P=...
-        self.Q=...
-        self.R=...
-        self.x=...
-        self.dt = ...
+        #initialize the matrices
+        self.P=P
+        self.Q=Q
+        self.R=R
+        self.x=x
+        self.dt =dt
         
     # TODO Part 3: Replace the matrices with Jacobians where needed        
     def predict(self):
 
-        self.A = ...
-        self.C = ...
+        self.A = self.jacobian_A() # state-transition matrix
+        self.C = self.jacobian_H() # measurement matrix
         
-        self.motion_model()
+        self.motion_model() # update state
         
-        self.P= np.dot( np.dot(self.A, self.P), self.A.T) + self.Q
+        self.P= np.dot( np.dot(self.A, self.P), self.A.T) + self.Q # update covariance
 
     # TODO Part 3: Replace the matrices with Jacobians where needed
     def update(self, z):
 
-        S=np.dot(np.dot(self.C, self.P), self.C.T) + self.R
+        S=np.dot(np.dot(self.C, self.P), self.C.T) + self.R # innovation covariance
             
-        kalman_gain=np.dot(np.dot(self.P, self.C.T), np.linalg.inv(S))
+        kalman_gain=np.dot(np.dot(self.P, self.C.T), np.linalg.inv(S)) # kalman gain
         
-        surprise_error= z - self.measurement_model()
+        surprise_error= z - self.measurement_model() # innovation
         
-        self.x=self.x + np.dot(kalman_gain, surprise_error)
-        self.P=np.dot( (np.eye(self.A.shape[0]) - np.dot(kalman_gain, self.C)) , self.P)
+        self.x=self.x + np.dot(kalman_gain, surprise_error)  # update state
+        self.P=np.dot( (np.eye(self.A.shape[0]) - np.dot(kalman_gain, self.C)) , self.P) # update covariance
         
     
     # TODO Part 3: Implement here the measurement model
     def measurement_model(self):
         x, y, th, w, v, vdot = self.x
         return np.array([
-            ...,# v
-            ...,# w
-            ..., # ax
-            ..., # ay
+            v,# v
+            w,# w
+            vdot, # ax #SHOULD THIS BE MULTIPLIED BY COS(THETA)?
+            v * w, # ay
         ])
         
     # TODO Part 3: Impelment the motion model (state-transition matrice)
@@ -56,8 +56,8 @@ class kalman_filter:
         dt = self.dt
         
         self.x = np.array([
-            x + ... * np.cos(th) * dt,
-            y + ... * np.sin(th) * dt,
+            x + v * np.cos(th) * dt,
+            y + v * np.sin(th) * dt,
             th + w * dt,
             w,
             v  + vdot*dt,
@@ -73,8 +73,8 @@ class kalman_filter:
         
         return np.array([
             #x, y,               th, w,             v, vdot
-            [1, 0,              ..., 0,          ...,  0],
-            [0, 1,              ..., 0,          ...,  0],
+            [1, 0, -v*np.sin(th)*dt, 0,  np.cos(th)*dt,  0],
+            [0, 1, v*np.cos(th)*dt, 0,   np.sin(th)*dt,  0],
             [0, 0,                1, dt,           0,  0],
             [0, 0,                0, 1,            0,  0],
             [0, 0,                0, 0,            1,  dt],
@@ -90,9 +90,11 @@ class kalman_filter:
             [0,0,0  , 0, 1, 0], # v
             [0,0,0  , 1, 0, 0], # w
             [0,0,0  , 0, 0, 1], # ax
-            [0,0,0  , ..., ..., 0], # ay
+            [0,0,0  , v, w, 0], # ay
         ])
         
     # TODO Part 3: return the states here    
     def get_states(self):
-        return ...
+        print(self.x)
+        print(np.array([self.x]))
+        return self.x # return states
