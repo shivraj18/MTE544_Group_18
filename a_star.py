@@ -70,7 +70,7 @@ def search(maze, start, end):
     start_node.f = 0
 
     end_node = Node(None, end)
-    end_node.g = 0       # set a large value if not defined
+    end_node.g = "inf"       # set a large value if not defined
     end_node.h = 0       # heuristic estimated cost to end Node
     end_node.f = 0
 
@@ -186,11 +186,18 @@ def search(maze, start, end):
             # TODO PART 4 Create the f, g, and h values
             child.g = current_node.g + 1
             # Heuristic costs calculated here, this is using eucledian distance
+
+            # EUCLIDIAN DISTANCE - UNCOMMENT TO USE
             child.h = sqrt(
                 (child.position[0] - end_node.position[0]) ** 2
                 + (child.position[1] - end_node.position[1]) ** 2
             )
-            child.f = child.g + child.h
+
+            # MANHATTAN DISTANCE - UNCOMMENT TO USE
+            # child.h = (child.position[0] - end_node.position[0]) + (child.position[1] - end_node.position[1]) 
+
+            e = 1 # change the weight of g when calculating f
+            child.f = e*child.g + child.h
 
             # Child is already in the yet_to_visit list and g cost is already lower
             child_node_in_yet_to_visit = yet_to_visit_dict.get(
