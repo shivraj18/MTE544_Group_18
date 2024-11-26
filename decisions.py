@@ -10,6 +10,7 @@ from rclpy import init, spin, spin_once
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 
+
 from rclpy.qos import QoSProfile
 from nav_msgs.msg import Odometry as odom
 
@@ -18,12 +19,15 @@ from localization import localization, rawSensors, kalmanFilter
 from planner import TRAJECTORY_PLANNER, POINT_PLANNER, planner
 from controller import controller, trajectoryController
 
+
 from geometry_msgs.msg import PoseStamped
+
 
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
 class decision_maker(Node):
+    
     
     def __init__(self, publisher_msg, publishing_topic, qos_publisher, rate=10, motion_type=POINT_PLANNER):
 
@@ -39,11 +43,13 @@ class decision_maker(Node):
         publishing_period=1/rate
 
         # TODO PART 5 choose your threshold
-        self.reachThreshold=...
+        self.reachThreshold=0.1
 
         # TODO PART 5 your localization type
-        self.localizer=localization(...)
-      
+        self.localizer=localization(kalmanFilter, rawSensors, odom, qos=QoSProfile(depth=10, reliability=2, durability=2))
+
+
+        
         if motion_type==POINT_PLANNER:
             self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)      
             self.planner=planner(POINT_PLANNER)
@@ -51,7 +57,7 @@ class decision_maker(Node):
         
         elif motion_type==TRAJECTORY_PLANNER:
             # TODO PART 5 Bonus Put the gains that you conclude from lab 2
-            self.controller=trajectoryController(...)      
+            self.controller=trajectoryController(klp=0.2, klv=0.5, kap=0.8, kav=0.6)      
             self.planner=planner(TRAJECTORY_PLANNER)
         
         else:
@@ -64,6 +70,8 @@ class decision_maker(Node):
 
 
         print("waiting for your input position, use 2D nav goal in rviz2")
+
+
 
 
     # This is for the rviz2 interface
@@ -86,7 +94,8 @@ class decision_maker(Node):
         if self.localizer.getPose() is  None:
             print("waiting for odom msgs ....")
             return
-                
+        
+        
         vel_msg=Twist()
         
         if self.goal is None:

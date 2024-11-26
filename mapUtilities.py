@@ -15,7 +15,9 @@ from utilities import *
 
 class mapManipulator(Node):
 
+
     def __init__(self, filename_: str = "room.yaml", laser_sig=0.01):
+        
         
         super().__init__('likelihood_field')
         
@@ -35,11 +37,17 @@ class mapManipulator(Node):
             filenameYaml=filename_ + ".yaml"
             filenamePGM=filename_+".pgm"
 
+        
+
         width, height, max_value, pixels = self.read_pgm(filenamePGM)
+
 
         self.width = width
         self.height = height
         
+        
+        
+
         self.image_array = np.array(pixels).reshape((height, width))
         self.o_x, self.o_y, self.res, self.thresh = self.read_description(filenameYaml)
 
@@ -51,6 +59,9 @@ class mapManipulator(Node):
     def getAllObstacles(self):
         image_array=self.image_array.T
 
+        
+        
+        
         indices = np.where(image_array < 10)
         
         return [self.cell_2_position([i, j]) for i, j in zip(indices[0], indices[1])]
@@ -94,15 +105,16 @@ class mapManipulator(Node):
 
         return width, height, max_value, pixels
 
-
     def plot_pgm_image(self, image_array):
         # Convert pixel values to a NumPy array
+
 
         # Plot the image
         plt.imshow(image_array, cmap='gray')
         plt.axis('off')
         plt.title('PGM Image')
         plt.show()
+
 
 
     def read_description(self, filenameYAML):
@@ -140,15 +152,19 @@ class mapManipulator(Node):
         i,j= pix
         return self.o_x + i*self.getResolution(),    (self.height - j) * self.getResolution()  + self.o_y  
     
+    
     def position_2_cell(self, pos):
         x,y = pos
         return floor( (-self.o_x + x)/self.getResolution()), -floor( -self.height + (-self.o_y + y)/self.getResolution() )
+
 
     def make_likelihood_field(self):
         
         image_array=self.image_array
 
         from sklearn.neighbors import KDTree
+        
+        
 
         indices = np.where(image_array < 10)
         
@@ -202,11 +218,15 @@ class mapManipulator(Node):
         
         gridOrigin = self.cell_2_position([0, self.height])
         
+
         grid.info.origin.orientation.w = np.cos(-np.pi/4)
         grid.info.origin.orientation.z = np.sin(-np.pi/4)
         offset = -self.height*self.getResolution()
 
+
+
         grid.info.origin.position.x, grid.info.origin.position.y = self.getOrigin()[0], +self.getOrigin()[1] - offset
+
 
         #grid.info.origin.orientation.w = np.cos(np.pi/2)
         #grid.info.origin.orientation.z = np.sin(np.pi/2)
@@ -221,6 +241,7 @@ class mapManipulator(Node):
         grid.data = [int(value) for value in normalized_likelihood.flatten()]
         grid.data = list(grid.data)
 
+
         return grid
 
 
@@ -230,7 +251,8 @@ class mapManipulator(Node):
         except IndexError:
             return 0
         
-             
+        
+        
     def map_localation_query(self, laser_msg: LaserScan):
         
         # this part was for kidnapping section of the particle filter algorithm
@@ -240,14 +262,25 @@ class mapManipulator(Node):
         pass
             
 
+
+
+
+
+     
+
+
+
 import argparse
 if __name__=="__main__":
     
+
+
     rclpy.init()
 
     parser=argparse.ArgumentParser()
     parser.add_argument('--map', type=str, default="./your_map/room.yaml", help='the absolute path to argument')
     parser.add_argument('--std', type=float, help='the std', default=0.01)
+
 
     args = parser.parse_args()
 
