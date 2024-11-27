@@ -49,7 +49,7 @@ class planner:
         
         # TODO PART 5 convert the cell pixels into the cartesian coordinates
         
-        Path = list(map(self.m_utilites.cell_2_position(),  search(self.costMap, startPose, endPose)))
+        Path = list(map(self.m_utilites.cell_2_position,  search(self.costMap, startPose, endPose)))
 
 
 
