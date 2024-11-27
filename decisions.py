@@ -46,7 +46,7 @@ class decision_maker(Node):
         self.reachThreshold=0.1 #TUNE THIS???
 
         # TODO PART 5 your localization type
-        self.localizer=localization(kalmanFilter, odom, qos=QoSProfile(depth=10, reliability=2, durability=2))
+        self.localizer=localization(type = kalmanFilter) #, odom, QoSProfile(depth=10))
 
 
         
