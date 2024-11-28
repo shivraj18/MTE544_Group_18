@@ -9,8 +9,8 @@ class planner:
 
         self.type=type_
         self.mapName=mapName
-
     
+
     def plan(self, startPose, endPose):
         
         if self.type==POINT_PLANNER:
@@ -25,8 +25,8 @@ class planner:
     def point_planner(self, endPose):
         return endPose
 
-    def initTrajectoryPlanner(self):
 
+    def initTrajectoryPlanner(self):
 
         # TODO PART 5 Create the cost-map, the laser_sig is 
         # the standard deviation for the gausiian for which
@@ -37,8 +37,6 @@ class planner:
         
 
     def trajectory_planner(self, startPoseCart, endPoseCart):
-
-
         # This is to convert the cartesian coordinates into the 
         # the pixel coordinates of the map image, remmember,
         # the cost-map is in pixels. You can by the way, convert the pixels
@@ -48,16 +46,14 @@ class planner:
         endPose=self.m_utilites.position_2_cell(endPoseCart)
         
         # TODO PART 5 convert the cell pixels into the cartesian coordinates
-        
-        Path = list(map(self.m_utilites.cell_2_position,  search(self.costMap, startPose, endPose)))
+        path = search(self.costMap, startPose, endPose)
 
+        plot_path(self.costMap, path)
 
+        Cartesian_Path = list(map(self.m_utilites.cell_2_position, path))
 
         # TODO PART 5 return the path as list of [x,y]
-        return Path
-
-
-
+        return Cartesian_Path
 
 if __name__=="__main__":
 
