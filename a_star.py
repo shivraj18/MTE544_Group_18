@@ -42,10 +42,9 @@ def return_path(current_node, maze):
         result[path[i][0]][path[i][1]] = start_value
         start_value += 1
 
-    print("return path func. complated")
     return path
 
-def distance(start, end, mode = "MANHATTAN"):  # EUCLID or MANHATTAN
+def distance(start, end, mode = "EUCLID"):  # EUCLID or MANHATTAN
     x1, y1 = start.position
     x2, y2 = end.position
 
@@ -72,12 +71,11 @@ def search(maze, start, end):
     # TODO PART 4 Create start and end node with initized values for g, h and f
     # Use None as parent if not defined
     start_node = Node(None, start)
-    end_node = Node(None, end)
-
     start_node.g = 0     # cost from start Node
-    start_node.h = distance(start= start_node, end= end_node)     # heuristic estimated cost to end Node
+    start_node.h = distance(start= start, end= end)     # heuristic estimated cost to end Node
     start_node.f = start_node.g + start_node.h
 
+    end_node = Node(None, end)
     end_node.g = 1       # set a large value if not defined
     end_node.h = 0       # heuristic estimated cost to end Node
     end_node.f = end_node.g + end_node.h
@@ -110,8 +108,6 @@ def search(maze, start, end):
             [1,-1],  # go down left
             [-1,1],  # go up right
             [1,1]]  # go down right
-    
-    cost = [1.0, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 1.5]
 
     """
         1) We first get the current node by comparing all f cost and selecting the lowest cost node for further expansion
@@ -160,7 +156,6 @@ def search(maze, start, end):
 
         # test if goal is reached or not, if yes then return the path
         if current_node == end_node:
-            print("A* return path")
             return return_path(current_node, maze)
 
         # Generate children from all adjacent squares
@@ -178,7 +173,7 @@ def search(maze, start, end):
                 continue
 
             # Make sure walkable terrain
-            if maze[node_position[0], node_position[1]] > 0.65:
+            if maze[node_position[0], node_position[1]] > 0.8:
                 continue
 
             # Create new node
@@ -188,18 +183,18 @@ def search(maze, start, end):
             children.append(new_node)
 
         # Loop through children
-        for i, child in enumerate(children):
+        for child in children:
 
             # TODO PART 4 Child is on the visited dict (use get method to check if child is in visited dict, if not found then default value is False)
-            if visited_dict.get(child.position, False):  # ??? If visited, the value will be true, then skip to bext child
+            if visited_dict.get(child.position, True):  # ??? If visited, the value will be true, then skip to bext child
                 continue
 
             # TODO PART 4 Create the f, g, and h values
-            child.g = current_node.g + cost[i]
+            child.g = current_node.g + 1
             # Heuristic costs calculated here, this is using eucledian distance
 
             # EUCLIDIAN DISTANCE - UNCOMMENT TO USE
-            child.h = distance(start= child, end= end_node)
+            child.h = distance(start= child, end= end)
 
             e = 1 # change the weight of g when calculating f
             child.f = e*child.g + child.h
@@ -232,11 +227,11 @@ def plot_path(maze, path=None):
             y_coord.append(y)
 
         # Plot the path
-        plt.plot(x_coord, y_coord, color='red', linewidth=1)
+        plt.plot(x_coords, y_coords, color='red', linewidth=1)
         
         # Mark start and goal points
-        plt.plot(x_coord[0], y_coord[0], color='green', marker='o', markersize=10, label='START')
-        plt.plot(x_coord[-1], y_coord[-1], color='blue', marker='x', markersize=10, label='GOAL')
+        plt.plot(x_coords[0], y_coords[0], color='green', marker='o', markersize=10, label='START')
+        plt.plot(x_coords[-1], y_coords[-1], color='blue', marker='x', markersize=10, label='GOAL')
     
     plt.title('Maze with planned path')
     plt.xlabel('X Coordinates')
